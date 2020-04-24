@@ -1,0 +1,65 @@
+name:                gameClient
+version:             0.1.0.0
+github:              "deepakkapiswe/gameClient"
+license:             BSD3
+author:              "Deepak Kapiswe"
+maintainer:          "deepakkapiswe@gmail.com"
+copyright:           "deepakkapiswe"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/deepakkapiswe/gameClient#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- servant
+- servant-server
+- servant-client
+- transformers
+- aeson
+- wai
+- wai-cors
+- warp
+- resource-pool
+- postgresql-simple
+- bytestring
+- http-client
+- http-types
+- http-reverse-proxy
+- containers
+- gameEngine
+
+
+library:
+  source-dirs: src
+
+executables:
+  gameClient-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - gameClient
+
+tests:
+  gameClient-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - gameClient
