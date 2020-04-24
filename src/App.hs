@@ -33,16 +33,17 @@ run = do
   let connStr = ""
   pool <- initConnectionPool connStr
   initDB connStr
-  game <- newMVar (CG.makeSampleGameWorld 20 15)
+  let initGame = (CG.makeSampleGameWorld 10 10)
+  game <- newMVar initGame
   let settings = setPort port $
         setBeforeMainLoop (hPutStrLn stderr ("listening on port " ++ show port)) $
         defaultSettings
   manager <- newManager defaultManagerSettings
-  runSettings settings $ mkApp manager pool game
+  runSettings settings $ mkApp manager pool game initGame
     
-mkApp :: Manager -> Pool Connection -> MVar GameWorld -> Application
-mkApp manager conns gameMVar = cors (const . Just $ corsPolicy) $
-  (serve api $ (server conns gameMVar) :<|> forwardServer manager)
+mkApp :: Manager -> Pool Connection -> MVar GameWorld -> GameWorld-> Application
+mkApp manager conns gameMVar initGame= cors (const . Just $ corsPolicy) $
+  (serve api $ (server conns gameMVar initGame) :<|> forwardServer manager)
   where
 
     -- Need to explictly allow needed extra headers through CORS.

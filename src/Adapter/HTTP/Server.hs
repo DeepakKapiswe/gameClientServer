@@ -21,14 +21,15 @@ import qualified GE.CreateGame as CG
 import GE.Types
 import qualified GE.GamePlay as GP
 
-server :: Pool Connection -> MVar GameWorld -> Server API
-server conns gameMVar =
+server :: Pool Connection -> MVar GameWorld -> GameWorld -> Server API
+server conns gameMVar initGame =
     getGame :<|>
     moveReq :<|>
     setDirection UP    :<|>
     setDirection RIGHT :<|>
     setDirection DOWN  :<|>
-    setDirection LEFT  
+    setDirection LEFT  :<|>
+    resetGame
   where   
     getGame :: Handler GameDisplay
     getGame = do
@@ -50,6 +51,13 @@ server conns gameMVar =
       let gs' = GP.setRoboDir d gs
       liftIO $ putMVar gameMVar gs'
       return (toGameDisplay gs')
+    
+    resetGame :: Handler GameDisplay
+    resetGame = do
+      liftIO $ takeMVar gameMVar
+      liftIO $ putMVar gameMVar initGame
+      return (toGameDisplay initGame)
+
 defGame2 = toGameDisplay $ CG.makeSampleGameWorld 15 15 
 
 defGame = GameDisplay 3 3 sampleGD
