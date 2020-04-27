@@ -26,6 +26,10 @@ type API =
     "turnLeft" :> Get '[JSON] GameDisplay
    :<|>
     "resetGame" :> Get '[JSON] GameDisplay
+   :<|>
+    "undoGame" :> Get '[JSON] GameDisplay
+   :<|>
+    "redoGame" :> Get '[JSON] GameDisplay
 
     -- "setDirection"
     --   :> ReqBody '[JSON] Direction

@@ -23,6 +23,7 @@ import           Adapter.HTTP.PostgreSQL.UserData
 
 import           GE.Types
 import qualified GE.CreateGame as CG
+import           GE.UndoRedo
 
 import Data.Pool
 import Database.PostgreSQL.Simple
@@ -35,15 +36,22 @@ run = do
   initDB connStr
   let initGame = (CG.makeSampleGameWorld 10 10)
   game <- newMVar initGame
+  undoRedo <- newMVar $ initUndoRedo 20
   let settings = setPort port $
         setBeforeMainLoop (hPutStrLn stderr ("listening on port " ++ show port)) $
         defaultSettings
   manager <- newManager defaultManagerSettings
-  runSettings settings $ mkApp manager pool game initGame
+  runSettings settings $ mkApp manager pool game initGame undoRedo
     
-mkApp :: Manager -> Pool Connection -> MVar GameWorld -> GameWorld-> Application
-mkApp manager conns gameMVar initGame= cors (const . Just $ corsPolicy) $
-  (serve api $ (server conns gameMVar initGame) :<|> forwardServer manager)
+mkApp
+  :: Manager
+  -> Pool Connection
+  -> MVar GameWorld             -- MVar Of Current Game World
+  -> GameWorld                  -- Game World To Reset
+  -> MVar (UndoRedo GameWorld)  -- MVar Of UndoRedo
+  -> Application
+mkApp manager conns gameMVar initGame initUR = cors (const . Just $ corsPolicy) $
+  (serve api $ (server conns gameMVar initGame initUR) :<|> forwardServer manager)
   where
 
     -- Need to explictly allow needed extra headers through CORS.
