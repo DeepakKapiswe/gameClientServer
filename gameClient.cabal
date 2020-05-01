@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 11eb0e81affbf8b2495ebc0f6dcfe6ea1872c4af37d56237cbb78378693403d9
+-- hash: 117c8d3b801eaa248bb92ba4131dfecac8ac97db2e4af2a4826648619008f33a
 
 name:           gameClient
 version:        0.1.0.0
@@ -42,7 +42,6 @@ library
       aeson
     , base >=4.7 && <5
     , bytestring
-    , containers
     , gameEngine
     , http-client
     , http-reverse-proxy
@@ -53,6 +52,7 @@ library
     , servant-client
     , servant-server
     , transformers
+    , unordered-containers
     , wai
     , wai-cors
     , warp
@@ -69,7 +69,6 @@ executable gameClient-exe
       aeson
     , base >=4.7 && <5
     , bytestring
-    , containers
     , gameClient
     , gameEngine
     , http-client
@@ -81,6 +80,7 @@ executable gameClient-exe
     , servant-client
     , servant-server
     , transformers
+    , unordered-containers
     , wai
     , wai-cors
     , warp
@@ -98,7 +98,6 @@ test-suite gameClient-test
       aeson
     , base >=4.7 && <5
     , bytestring
-    , containers
     , gameClient
     , gameEngine
     , http-client
@@ -110,6 +109,7 @@ test-suite gameClient-test
     , servant-client
     , servant-server
     , transformers
+    , unordered-containers
     , wai
     , wai-cors
     , warp

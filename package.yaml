@@ -35,8 +35,8 @@ dependencies:
 - http-client
 - http-types
 - http-reverse-proxy
-- containers
 - gameEngine
+- unordered-containers
 
 
 library:

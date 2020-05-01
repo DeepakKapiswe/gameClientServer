@@ -34,7 +34,7 @@ run = do
   let connStr = ""
   pool <- initConnectionPool connStr
   initDB connStr
-  let initGame = (CG.makeSampleGameWorld 10 10)
+  let initGame = (CG.makeSampleGame 10 10)
   game <- newMVar initGame
   undoRedo <- newMVar $ initUndoRedo 20
   let settings = setPort port $
@@ -46,9 +46,9 @@ run = do
 mkApp
   :: Manager
   -> Pool Connection
-  -> MVar GameWorld             -- MVar Of Current Game World
-  -> GameWorld                  -- Game World To Reset
-  -> MVar (UndoRedo GameWorld)  -- MVar Of UndoRedo
+  -> MVar Game                  -- MVar Of Current Game World
+  -> Game                       -- Game World To Reset
+  -> MVar (UndoRedo Game)       -- MVar Of UndoRedo
   -> Application
 mkApp manager conns gameMVar initGame initUR = cors (const . Just $ corsPolicy) $
   (serve api $ (server conns gameMVar initGame initUR) :<|> forwardServer manager)
