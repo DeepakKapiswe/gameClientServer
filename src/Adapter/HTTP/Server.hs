@@ -19,15 +19,15 @@ import Adapter.ToGD.ToGameDisplay (toGameDisplay)
 
 import qualified GE.CreateGame as CG
 import GE.Types
-import qualified GE.GamePlay as GP
+import qualified GE.GameRunner as GR
 import           GE.UndoRedo
 
 
 server
   :: Pool Connection
-  -> MVar GameWorld
-  -> GameWorld 
-  -> MVar (UndoRedo GameWorld)
+  -> MVar Game
+  -> Game
+  -> MVar (UndoRedo Game)
   -> Server API
 server conns gameMVar initGame urMVar =
     getGame :<|>
@@ -39,23 +39,27 @@ server conns gameMVar initGame urMVar =
     resetGame          :<|>
     undoGame           :<|>
     redoGame           
-  where   
+  where 
+    gameConfig = gGameConfig initGame
+
     getGame :: Handler GameDisplay
     getGame = do
-      gameWorld <- liftIO $ readMVar gameMVar
-      return (toGameDisplay gameWorld)
+      game <- liftIO $ readMVar gameMVar
+      return (toGameDisplay game)
 
     moveReq :: Handler GameDisplay
     moveReq = do
-      gs' <-  liftIO $ fmap GP.runRobo $ takeMVar gameMVar
+      gs' <-  liftIO $ fmap (GR.gameStep Move) 
+                     $ takeMVar gameMVar
       liftIO $ putMVar gameMVar gs'
+      liftIO $ putStrLn (show (gRobot gs'))
       liftIO $ modifyMVar_ urMVar (return . addToUR gs')
       return (toGameDisplay gs')
     
     setDirection :: Direction -> Handler GameDisplay
     setDirection d = do
-      gs <- liftIO $ takeMVar gameMVar
-      let gs' = GP.setRoboDir d gs
+      gs' <-  liftIO $ fmap (GR.gameStep (SetDirection d)) 
+                     $ takeMVar gameMVar
       liftIO $ putMVar gameMVar gs'
       liftIO $ modifyMVar_ urMVar (return . addToUR gs')
       return (toGameDisplay gs')
@@ -84,20 +88,3 @@ server conns gameMVar initGame urMVar =
       liftIO $ modifyMVar_ urMVar (return . const newUR)
       liftIO $ modifyMVar_ gameMVar (return . const newGameWorld)
       return (toGameDisplay newGameWorld)
-
-
-defGame2 = toGameDisplay $ CG.makeSampleGameWorld 15 15 
-
-defGame = GameDisplay 3 3 sampleGD
-
-sampleGD = makeGrid 30 15 
-                         
-makeGrid :: Int -> Int -> [[CellDetails]]
-makeGrid x y = zipWith f (makeRow x <$> [1..y]) (gh x cc)
-  where
-    makeRow x y = [CellDetails a y | a <- [1..x]] 
-    cc = (fmap toEnum $ cycle [0..33])
-    f :: [CellCode -> CellDetails] -> [CellCode] -> [CellDetails]
-    f = zipWith ($)
-    gh b [] = []
-    gh b xs = take b xs  : gh b (drop b xs) 
