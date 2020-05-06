@@ -30,6 +30,8 @@ type API =
     "undoGame" :> Get '[JSON] GameDisplay
    :<|>
     "redoGame" :> Get '[JSON] GameDisplay
+   :<|>
+    "gameAutoPlay" :> Get '[JSON] GameDisplay
 
     -- "setDirection"
     --   :> ReqBody '[JSON] Direction

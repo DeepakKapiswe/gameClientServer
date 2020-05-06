@@ -36,7 +36,7 @@ run = do
   initDB connStr
   let initGame = (CG.makeSampleGame 10 10)
   game <- newMVar initGame
-  undoRedo <- newMVar $ initUndoRedo 20
+  undoRedo <- newMVar $ initUndoRedo 100
   let settings = setPort port $
         setBeforeMainLoop (hPutStrLn stderr ("listening on port " ++ show port)) $
         defaultSettings
@@ -53,7 +53,6 @@ mkApp
 mkApp manager conns gameMVar initGame initUR = cors (const . Just $ corsPolicy) $
   (serve api $ (server conns gameMVar initGame initUR) :<|> forwardServer manager)
   where
-
     -- Need to explictly allow needed extra headers through CORS.
     corsPolicy = simpleCorsResourcePolicy
       { corsRequestHeaders = [ "content-type" ]

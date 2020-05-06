@@ -38,7 +38,8 @@ server conns gameMVar initGame urMVar =
     setDirection LEFT  :<|>
     resetGame          :<|>
     undoGame           :<|>
-    redoGame           
+    redoGame           :<|>
+    gameAutoPlay
   where 
     gameConfig = gGameConfig initGame
 
@@ -52,7 +53,6 @@ server conns gameMVar initGame urMVar =
       gs' <-  liftIO $ fmap (GR.gameStep Move) 
                      $ takeMVar gameMVar
       liftIO $ putMVar gameMVar gs'
-      liftIO $ putStrLn (show (gRobot gs'))
       liftIO $ modifyMVar_ urMVar (return . addToUR gs')
       return (toGameDisplay gs')
     
@@ -88,3 +88,11 @@ server conns gameMVar initGame urMVar =
       liftIO $ modifyMVar_ urMVar (return . const newUR)
       liftIO $ modifyMVar_ gameMVar (return . const newGameWorld)
       return (toGameDisplay newGameWorld)
+    
+    gameAutoPlay :: Handler GameDisplay
+    gameAutoPlay = do
+      gs' <-  liftIO . fmap GR.gameAutoPlay 
+                     $ takeMVar gameMVar
+      liftIO $ putMVar gameMVar gs'
+      liftIO $ modifyMVar_ urMVar (return . addToUR gs')
+      return (toGameDisplay gs')
